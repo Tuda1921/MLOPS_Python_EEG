@@ -5,6 +5,10 @@ from typing import Union, Tuple
 import logging
 from abc import ABC, abstractmethod
 from sklearn.preprocessing import OneHotEncoder
+from keras.optimizers import Adam
+import scipy as sp
+from scipy.interpolate import interp1d
+from tqdm import tqdm
 
 class DataStrategy(ABC):
     @abstractmethod
@@ -46,10 +50,10 @@ class DataStrategy(ABC):
 
 def create_sequences(data, time_steps):
     X = []
-    for k in range(len(data)):
+    for k in tqdm(range(len(data))):
         S_W = []
-        for i in range(data.shape[1] - time_steps + 1):
-            S_W.append(FeatureExtract.FFT(data[k, i:i + time_steps]))
+        for i in range(0,data.shape[1] - time_steps + 1, time_steps//5):
+            S_W.append(FeatureExtract.FFT(Preprocessing.filter_data(data[k, i:i + time_steps])))
         X.append(S_W)
     X = np.array(X)
     print(X.shape)
@@ -68,8 +72,8 @@ class TimeSeriesDataPreparer:
             X = create_sequences(data[:, :-1], self.time_steps)
             y = data[:, -1]
 
-            # encoder = OneHotEncoder(sparse_output=False)
-            # y = encoder.fit_transform(y.reshape(-1, 1))
+            encoder = OneHotEncoder(sparse_output=False)
+            y = encoder.fit_transform(y.reshape(-1, 1))
             y = np.array(y)
             return X, y
         except Exception as e:
@@ -115,6 +119,23 @@ class DataCleaning:
             return self.strategy.handle_data(data)
         else:
             return self.strategy.handle_data(X, y)
+
+class Preprocessing:
+    """
+    Preprocessing class which preprocesses the data.
+    """
+    def __init__(self, strategy: DataSplitStrategy):
+        self.strategy = strategy
+
+    def filter_data(data):
+        # Bandpass filter
+        band = [0.5 / (0.5 * 160), 40 / (0.5 * 160)]
+        b, a = sp.signal.butter(0, band, btype='band', analog=False, output='ba')
+        data = sp.signal.lfilter(b, a, data)
+
+        # plt.hist(data, bins=10, edgecolor='black')
+        # filter for EMG by interpolated
+        return data
 class FeatureExtract:
     """
     FeatureExtract class which extracts features from the data.

@@ -1,6 +1,7 @@
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, Bidirectional, Dropout, TimeDistributed
 from keras.callbacks import EarlyStopping
+from keras.optimizers import Adam
 import pandas as pd
 import matplotlib.pyplot as plt
 import optuna
@@ -37,7 +38,7 @@ class Model(ABC):
         pass
 
 class LSTMModel:
-    def __init__(self, input_shape, units, dropout_rate, num_classes):
+    def __init__(self, input_shape, units, dropout_rate, num_classes, learning_rate, fc_units):
         """
         Initializes the LSTM model for sequence classification.
 
@@ -49,10 +50,12 @@ class LSTMModel:
         """
         self.model = Sequential()
         self.model.add(Bidirectional(LSTM(units=units, activation='tanh', return_sequences=False), input_shape=input_shape))
-        self.model.add(Dense(units=32, activation='tanh'))
+        self.model.add(Dense(units=fc_units, activation='tanh'))
         self.model.add(Dropout(dropout_rate))
         self.model.add(Dense(units=num_classes, activation='softmax'))  # Softmax activation for multi-class classification
-        self.model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        # learning rate
+        optimizer = Adam(learning_rate=learning_rate)
+        self.model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, X_train, y_train, X_test, y_test, epochs, batch_size, patience):
         early_stopping = EarlyStopping(monitor='val_loss', patience=patience, restore_best_weights=True)
