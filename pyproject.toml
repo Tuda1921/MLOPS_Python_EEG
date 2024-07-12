@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "pipeline"
+version = "0.1.0"
+description = "Pipeline with EEG data"
+repository = "https://github.com/Anh-Nam-97/mlops-python-EEG"
+documentation = "https://yourusername.github.io/mlops-python-package/"
+authors = ["nam.leanh.hust@gmail.com"]
+readme = "README.md"
+license = "CC BY"
+keywords = ["mlops", "python", "package"]
+packages = [{ include = "EEG", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytest = "^8.2.2"
+mlflow = "^2.13.2"
+
+
+[tool.poetry.group.checkers.dependencies]
+ruff = "^0.4.8"
+mypy = "^1.10.1"
+
+
+[tool.poetry.group.commits.dependencies]
+pre-commit = "^3.7.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+# automatic fix when possible
+fix = true
+# define the default indent width
+indent-width = 4
+# define the default line length
+line-length = 100
+# define the default python version
+target-version = "py311"
+
+[tool.ruff.lint.per-file-ignores]
+# exceptions for docstrings in tests
+"tests/*.py" = ["D100", "D103"]
