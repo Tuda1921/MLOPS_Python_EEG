@@ -2,7 +2,7 @@ import logging
 import numpy as np
 from typing import Tuple
 from model.data_cleaning import DataSplitStrategy, TimeSeriesDataPreparer, FeatureExtract
-
+import os
 logging.basicConfig(level=logging.INFO)
 
 
@@ -20,13 +20,14 @@ def clean_data(filename: str, time_steps: int) -> Tuple[np.ndarray, np.ndarray, 
 
         time_series_preparer = TimeSeriesDataPreparer(time_steps)
         X, y = time_series_preparer.handle_data(filename)
+        print(type(X))
 
         # Log the shape of X and y after time series preparation
         logging.info(f"Shape of X after time series preparation: {X.shape}")
         logging.info(f"Shape of y after time series preparation: {y.shape}")
 
         # Split the data into training and testing sets
-        split_strategy = DataSplitStrategy(test_size=0.2, random_state=42)
+        split_strategy = DataSplitStrategy(test_size=0.2, random_state=43)
         X_train, X_test, y_train, y_test = split_strategy.handle_data(X, y)
 
         # Log the shapes of the split data

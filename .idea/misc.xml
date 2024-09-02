@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="MLOPS_EEG" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="MLOPS_EEG" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="EMI" project-jdk-type="Python SDK" />
 </project>
