@@ -62,11 +62,11 @@ class DataStrategy(ABC):
 #             raise e
 
 def create_sequences(data, time_steps):
-    if not (os.path.exists('X.npy')):
+    if not (os.path.exists('feature.csv')):
         X = []
         for k in tqdm(range(len(data))):
             S_W = []
-            for i in range(0,data.shape[1] - time_steps + 1, time_steps):
+            for i in range(0,data.shape[1] - time_steps + 1, time_steps//2):
                 extractor = FeatureExtract(data[k, i:i + time_steps], 160)
                 features = extractor.FeatureExtract()
                 S_W.append(features)
@@ -74,9 +74,14 @@ def create_sequences(data, time_steps):
             X.append(S_W)
         X = np.array(X)
         print(X.shape)
-        np.save('X.npy',X)
+        # Reshape and save to CSV
+        X_reshaped = np.reshape(X, (6768 * 15, 51))
+        print(X_reshaped.shape)
+        pd.DataFrame(X_reshaped).to_csv('feature.csv', index=False)
     else:
-        X = np.load('X.npy')
+        X = pd.read_csv('feature.csv').iloc[:, :-1]
+        print(X.shape)
+        X = np.reshape(X, (6768, 15, 51))
     return np.array(X)
 
 class TimeSeriesDataPreparer:
@@ -189,9 +194,9 @@ class FeatureExtract:
     def statistical_features(self):
         features = {
             'mean': np.mean(self.signal),
-            'std': np.std(self.signal),
-            'mean_abs_diff': np.mean(np.abs(np.diff(self.signal))),
-            'mean_abs_second_diff': np.mean(np.abs(np.diff(self.signal, n=2))),
+            # 'std': np.std(self.signal),
+            # 'mean_abs_diff': np.mean(np.abs(np.diff(self.signal))),
+            # 'mean_abs_second_diff': np.mean(np.abs(np.diff(self.signal, n=2))),
             'skewness': stats.skew(self.signal),
             'kurtosis': stats.kurtosis(self.signal)
         }
@@ -253,7 +258,7 @@ class FeatureExtract:
             idx_band = np.logical_and(f >= low, f <= high)
             power = np.sum(psd[idx_band])
             features[f'{band}_power'] = power
-            features[f'{band}_relative_power'] = power / total_power
+            # features[f'{band}_relative_power'] = power / total_power
 
         band_list = list(bands.keys())
         for i in range(len(band_list)):
@@ -313,8 +318,6 @@ class FeatureExtract:
             level_name = f'dwt_level_{i}'
             prob = coeff ** 2 / np.sum(coeff ** 2)
             features.update({
-                f'{level_name}_mean': np.mean(np.abs(coeff)),
-                f'{level_name}_std': np.std(coeff),
                 f'{level_name}_energy': np.sum(coeff ** 2),
                 f'{level_name}_entropy': -np.sum(prob * np.log2(prob + 1e-10))
             })
@@ -341,7 +344,7 @@ class FeatureExtract:
         peaks, _ = find_peaks(self.signal)
         return {
             "peak_count": len(peaks),
-            "peak_to_peak": np.ptp(self.signal)
+            # "peak_to_peak": np.ptp(self.signal)
         }
 
     def spectral_entropy(self):
@@ -366,7 +369,7 @@ class FeatureExtract:
     def FeatureExtract(self):
         feature_methods = [
             self.statistical_features,
-            self.ar_features,
+            # self.ar_features,
             self.dfa_features,
             self.psd_features,
             self.band_power,
@@ -376,7 +379,7 @@ class FeatureExtract:
             self.cwt_features,
             self.dwt_features,
             self.zero_crossing_rate,
-            self.root_mean_square,
+            # self.root_mean_square,
             self.energy,
             self.envelope,
             self.autocorrelation,

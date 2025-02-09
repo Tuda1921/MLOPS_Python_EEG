@@ -20,7 +20,12 @@ def clean_data(filename: str, time_steps: int) -> Tuple[np.ndarray, np.ndarray, 
 
         time_series_preparer = TimeSeriesDataPreparer(time_steps)
         X, y = time_series_preparer.handle_data(filename)
-        print(type(X))
+        # indices_to_keep = np.where(y != 1)[0]
+        #
+        # # Lọc X và y dựa trên các chỉ số đó
+        # X = X[indices_to_keep]
+        # y = y[indices_to_keep]
+        # print(X.shape)
 
         # Log the shape of X and y after time series preparation
         logging.info(f"Shape of X after time series preparation: {X.shape}")

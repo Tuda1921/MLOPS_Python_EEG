@@ -26,8 +26,8 @@ def training_pipeline(file_name: str, time_steps: int, units, dropout_rate, epoc
                 study = initial_transformer.optimize(X_train, Y_train, X_test, Y_test)
                 best_params = study.best_trial.params
             else:
-                best_params = {'d_k': 32, 'd_v': 32, 'n_heads': 2,
-                               'ff_dim': 64}  # Use default or preset hyperparameters
+                best_params = {'d_k': 80, 'd_v': 80, 'n_heads': 8,
+                               'ff_dim': 128}  # Use default or preset hyperparameters
             model = TransformerModel(input_shape=input_shape, num_classes=num_classes, encoding_type=encoding_type,
                                      **best_params)
         else:

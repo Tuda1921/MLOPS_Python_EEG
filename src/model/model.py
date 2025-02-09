@@ -118,7 +118,7 @@ class TransformerModel(Model):
         self.model = tf.keras.models.Model(inputs=input_seq, outputs=out)
 
     def train(self, X_train, y_train, X_test, y_test, epochs, batch_size, trial=None):
-        opt = Adam(learning_rate=1e-2)
+        opt = Adam(learning_rate=1e-3)
         self.model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 
         early_stopping = EarlyStopping(monitor='val_loss', patience=100, restore_best_weights=True)
@@ -232,7 +232,7 @@ class LSTMModel:
         # self.model.add(Dense(units=32, activation='tanh'))
         # self.model.add(Dropout(dropout_rate))
         self.model.add(Dense(units=num_classes, activation='softmax'))  # Softmax activation for multi-class classification
-        opt = Adam(learning_rate=5e-5)
+        opt = Adam(learning_rate=5e-4)
         self.model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 
     def train(self, X_train, y_train, X_test, y_test, epochs, batch_size):
